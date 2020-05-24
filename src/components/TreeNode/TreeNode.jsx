@@ -57,5 +57,5 @@ function TreeNode({ data, className }) {
   );
 }
 
-// export default React.memo(TreeNode);
-export default TreeNode;
+export default React.memo(TreeNode);
+// export default TreeNode;

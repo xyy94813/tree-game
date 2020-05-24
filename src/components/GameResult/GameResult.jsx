@@ -19,4 +19,4 @@ GameResult.propTypes = {
   winner: PropTypes.string,
 };
 
-export default GameResult;
+export default React.memo(GameResult);

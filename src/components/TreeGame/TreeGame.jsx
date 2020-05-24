@@ -285,4 +285,4 @@ function TreeGame(props) {
   );
 }
 
-export default TreeGame;
+export default React.memo(TreeGame);
