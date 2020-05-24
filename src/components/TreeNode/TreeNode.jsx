@@ -38,7 +38,7 @@ function TreeNode({ data, className }) {
       className={classNames("tree-node", className, {
         ["player1-selected"]: selectedByPlayer1,
         ["player2-selected"]: selectedByPlayer2,
-        disabled: !active,
+        disabled: !(selectedByPlayer1 || selectedByPlayer2) && !active,
       })}
     >
       <span

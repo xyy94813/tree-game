@@ -20,6 +20,13 @@
   background: #94a0b4;
 }
 
+.tree-node.disabled > .tree-node-val {
+  cursor: auto;
+}
+.tree-node.disabled > .tree-node-val:hover {
+  background: transparent;
+}
+
 /* 被选中 start */
 .tree-node.player1-selected > .tree-node-val {
   background: red;
@@ -28,7 +35,6 @@
 .tree-node.player2-selected > .tree-node-val {
   background: blue;
 }
-
 /* 被选中 end */
 
 .tree-node .tree-node-child {
@@ -40,7 +46,6 @@
   padding-top: 24px;
 }
 
-/* 被选中 */
 .tree-node .tree-node-child::before {
   content: "";
   position: absolute;
@@ -67,12 +72,7 @@
   border-left: 1px solid #ccc;
 }
 
-.tree-node.tree-node-left::after,
-.tree-node.tree-node-right::before {
+.tree-node.tree-node-left:not(:only-child)::after,
+.tree-node.tree-node-right:not(:only-child)::before {
   border-top: 1px solid #ccc;
-}
-
-.tree-node-child .tree-node:only-child::before,
-.tree-node-child .tree-node:only-child::after {
-  border-top: 0;
 }
