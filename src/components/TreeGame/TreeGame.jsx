@@ -276,7 +276,8 @@ function TreeGame(props) {
         <button onClick={handleResetBtnClick}>重新开始</button>
         <br />
         <span>player1: {player1SelectedNum}，</span>
-        <span>player2[AI]: {player2SelectedNum}</span>
+        <span>player2[AI]: {player2SelectedNum}。</span>
+        <span>current player: {firstPlayer ? "player1" : "player2"}</span>
       </div>
       {!!finished && (
         <GameResult
