@@ -5,6 +5,7 @@ import randomInteger from "../../utils/randomInteger.js";
 import generateNBinaryTree from "../../utils/generateNBinaryTree";
 
 import TreeNode from "../TreeNode";
+import GameResult from "../GameResult";
 
 import TreeGameContext from "./TreeGameContext";
 
@@ -67,39 +68,6 @@ const checkPlayerFinish = (
 
   return true;
 };
-
-/**
- * 检查游戏是否结束
- * 待优化
- * @param {*} player1Selected
- * @param {*} player2Selected
- */
-// const checkFinished = (player1Selected, player2Selected) => {
-//   const isSelected = (node) =>
-//     player1Selected.has(node) || player2Selected.has(node);
-
-//   for (let { left, right, parent } of player1Selected) {
-//     if (
-//       (left && !isSelected(left)) ||
-//       (right && !isSelected(right)) ||
-//       (parent && !isSelected(parent))
-//     ) {
-//       return false;
-//     }
-//   }
-
-//   for (let { left, right, parent } of player2Selected) {
-//     if (
-//       (left && !isSelected(left)) ||
-//       (right && !isSelected(right)) ||
-//       (parent && !isSelected(parent))
-//     ) {
-//       return false;
-//     }
-//   }
-
-//   return true;
-// };
 
 /**
  * 游戏结束时填满剩余的点
@@ -262,12 +230,14 @@ const init = getDefaultState();
 
 function TreeGame(props) {
   const [state, dispatch] = useReducer(reducer, init);
-  const handleResetBtnClick = useCallback(
+  const resetGame = useCallback(
     (e) => {
       dispatch({ type: "RESTART" });
     },
     [dispatch]
   );
+  const handleResetBtnClick = resetGame;
+
   // 或许不需要事件委托
   //   const handlePanelClick = useCallback((e) => {
   //     const { target } = e;
@@ -288,14 +258,16 @@ function TreeGame(props) {
         <span>player2[AI]: {player2SelectedNum}</span>
       </div>
       {!!state.finished && (
-        <div>
-          游戏结束，
-          {player1SelectedNum === player2SelectedNum
-            ? "平局"
-            : player1SelectedNum > player2SelectedNum
-            ? "player1 winned"
-            : "player2 winned"}
-        </div>
+        <GameResult
+          onClick={resetGame}
+          winner={
+            player1SelectedNum === player2SelectedNum
+              ? null
+              : player1SelectedNum > player2SelectedNum
+              ? "player1"
+              : "player2"
+          }
+        />
       )}
       <div>
         <TreeGameContext.Provider
