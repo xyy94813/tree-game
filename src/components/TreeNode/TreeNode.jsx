@@ -13,7 +13,7 @@ function TreeNode({ data, className }) {
   const { left, val, right } = data;
   const {
     state: { firstPlayer, player1Selected, player2Selected },
-    dispatch,
+    // dispatch,
   } = useContext(TreeGameContext);
   // console.log(player1Selected, player2Selected);
   const selectedByPlayer1 = player1Selected.has(data);
@@ -24,14 +24,14 @@ function TreeNode({ data, className }) {
     player1Selected,
     player2Selected
   );
-  const handleNodeClick = useCallback(() => {
-    if (selectedByPlayer1 || selectedByPlayer1) {
-      return;
-    } else {
-      dispatch({ type: "SELECT_NODE", data });
-      dispatch({ type: "SELECT_NODE_BY_AI" });
-    }
-  }, [dispatch, data, selectedByPlayer1, selectedByPlayer1]);
+  // const handleNodeClick = useCallback(() => {
+  //   if (selectedByPlayer1 || selectedByPlayer1) {
+  //     return;
+  //   } else {
+  //     dispatch({ type: "SELECT_NODE", data });
+  //     dispatch({ type: "SELECT_NODE_BY_AI" });
+  //   }
+  // }, [dispatch, data, selectedByPlayer1, selectedByPlayer1]);
 
   return (
     <div
@@ -43,7 +43,7 @@ function TreeNode({ data, className }) {
     >
       <span
         className="tree-node-val"
-        onClick={active ? handleNodeClick : undefined}
+        // onClick={active ? handleNodeClick : undefined}
       >
         {val}
       </span>

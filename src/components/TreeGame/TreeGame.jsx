@@ -3,7 +3,7 @@ import React, { useReducer, useCallback } from "react";
 // import flow from "../../utils/flow";
 import randomOdd from "../../utils/randomOdd.js";
 import generateNBinaryTree from "../../utils/generateNBinaryTree";
-
+import { bfs } from "../../utils/treeSearch.js";
 import TreeNode from "../TreeNode";
 import GameResult from "../GameResult";
 
@@ -232,6 +232,13 @@ const init = getDefaultState();
 
 function TreeGame(props) {
   const [state, dispatch] = useReducer(reducer, init);
+  const {
+    player1Selected,
+    player2Selected,
+    finished,
+    treeData,
+    firstPlayer,
+  } = state;
   const resetGame = useCallback(
     (e) => {
       dispatch({ type: "RESTART" });
@@ -241,15 +248,27 @@ function TreeGame(props) {
   const handleResetBtnClick = resetGame;
 
   // 或许不需要事件委托
-  //   const handlePanelClick = useCallback((e) => {
-  //     const { target } = e;
-  //     if (target.tagName === "SPAN" && target.className === "tree-node-val") {
-  //       console.log("节点" + target.textContent + "被选中");
-  //     }
-  //   });
+  const handlePanelClick = useCallback(
+    (e) => {
+      const { target } = e;
+      if (target.tagName === "SPAN" && target.className === "tree-node-val") {
+        console.log("节点" + target.textContent + "被选中");
+        bfs(treeData, (node) => {
+          if (
+            target.textContent - node.val === 0 &&
+            canBeChoiced(node, firstPlayer, player1Selected, player2Selected)
+          ) {
+            dispatch({ type: "SELECT_NODE", data: node });
+            dispatch({ type: "SELECT_NODE_BY_AI" });
+          }
+        });
+      }
+    },
+    [treeData, firstPlayer, player1Selected, player2Selected]
+  );
 
-  const player1SelectedNum = state.player1Selected.size;
-  const player2SelectedNum = state.player2Selected.size;
+  const player1SelectedNum = player1Selected.size;
+  const player2SelectedNum = player2Selected.size;
 
   return (
     <>
@@ -259,7 +278,7 @@ function TreeGame(props) {
         <span>player1: {player1SelectedNum}，</span>
         <span>player2[AI]: {player2SelectedNum}</span>
       </div>
-      {!!state.finished && (
+      {!!finished && (
         <GameResult
           onClick={resetGame}
           winner={
@@ -271,14 +290,14 @@ function TreeGame(props) {
           }
         />
       )}
-      <div>
+      <div onClick={handlePanelClick}>
         <TreeGameContext.Provider
           value={{
             state,
             dispatch,
           }}
         >
-          <TreeNode data={state.treeData} />
+          <TreeNode data={treeData} />
         </TreeGameContext.Provider>
       </div>
     </>
