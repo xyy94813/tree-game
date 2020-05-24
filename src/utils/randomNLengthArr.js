@@ -30,7 +30,7 @@ const randomNLengthArr = (n) => {
   //   result.sort(() => Math.random() - Math.random())
   // 洗牌
   for (let i = 0; i < n; ++i) {
-    swapArr(result, i, randomInteger(0, n - 1));
+    swapArr(result, i, randomInteger(0, n));
   }
 
   return result;
