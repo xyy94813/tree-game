@@ -101,9 +101,39 @@ const checkPlayerFinish = (
 //   return true;
 // };
 
-const checkFinished = (player1Selected, player2Selected, max) => {
-  console.log(player1Selected.size + player2Selected.size, max);
-  return player1Selected.size + player2Selected.size >= max;
+/**
+ * 游戏结束时填满剩余的点
+ * 待优化
+ * @param {*} firstPlayer
+ * @param {*} player1Selected
+ * @param {*} player2Selected
+ */
+const fillNode = (firstPlayer, player1Selected, player2Selected) => {
+  if (firstPlayer) {
+    for (let { left, right, parent } of player1Selected) {
+      if (canBeChoiced(left, firstPlayer, player1Selected, player2Selected)) {
+        player1Selected.add(left);
+      }
+      if (canBeChoiced(right, firstPlayer, player1Selected, player2Selected)) {
+        player1Selected.add(right);
+      }
+      if (canBeChoiced(parent, firstPlayer, player1Selected, player2Selected)) {
+        player1Selected.add(parent);
+      }
+    }
+  } else {
+    for (let { left, right, parent } of player2Selected) {
+      if (canBeChoiced(left, firstPlayer, player1Selected, player2Selected)) {
+        player2Selected.add(left);
+      }
+      if (canBeChoiced(right, firstPlayer, player1Selected, player2Selected)) {
+        player2Selected.add(right);
+      }
+      if (canBeChoiced(parent, firstPlayer, player1Selected, player2Selected)) {
+        player2Selected.add(parent);
+      }
+    }
+  }
 };
 
 const reducer = (state, { type, data }) => {
@@ -130,22 +160,20 @@ const reducer = (state, { type, data }) => {
     }
 
     let nextPlayer = !state.firstPlayer;
-    let nextPlayerFinish = checkPlayerFinish(
-      nextPlayer,
-      state.player1Selected,
-      state.player2Selected
-    );
 
-    nextPlayer = nextPlayerFinish ? !nextPlayer : nextPlayer;
+    const finished =
+      checkPlayerFinish(false, state.player1Selected, state.player2Selected) ||
+      checkPlayerFinish(true, state.player1Selected, state.player2Selected);
+
+    if (finished) {
+      fillNode(true, state.player1Selected, state.player2Selected);
+      fillNode(false, state.player1Selected, state.player2Selected);
+    }
 
     return {
       ...state,
+      finished,
       firstPlayer: nextPlayer,
-      finished: checkFinished(
-        state.player1Selected,
-        state.player2Selected,
-        state.dataSize
-      ),
     };
   }
 
@@ -210,14 +238,20 @@ const reducer = (state, { type, data }) => {
         }
       }
     }
+
+    const finished =
+      checkPlayerFinish(false, state.player1Selected, state.player2Selected) ||
+      checkPlayerFinish(true, state.player1Selected, state.player2Selected);
+
+    if (finished) {
+      fillNode(true, state.player1Selected, state.player2Selected);
+      fillNode(false, state.player1Selected, state.player2Selected);
+    }
+
     return {
       ...state,
+      finished,
       firstPlayer: true,
-      finished: checkFinished(
-        state.player1Selected,
-        state.player2Selected,
-        state.dataSize
-      ),
     };
   }
 
