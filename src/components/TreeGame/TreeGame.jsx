@@ -1,7 +1,7 @@
 import React, { useReducer, useCallback } from "react";
 
 // import flow from "../../utils/flow";
-import randomInteger from "../../utils/randomInteger.js";
+import randomOdd from "../../utils/randomOdd.js";
 import generateNBinaryTree from "../../utils/generateNBinaryTree";
 
 import TreeNode from "../TreeNode";
@@ -13,7 +13,7 @@ import canBeChoiced from "./canBeChoiced";
 import btreeGameWinningMove from "./btreeGameWinningMove";
 
 const getDefaultState = () => {
-  const dataSize = randomInteger(1, 20);
+  const dataSize = randomOdd(1, 20);
   return {
     dataSize,
     treeData: generateNBinaryTree(dataSize),
