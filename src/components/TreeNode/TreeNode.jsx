@@ -1,20 +1,21 @@
-import React, { useContext, useCallback } from "react";
+import React, { useContext } from "react";
 import classNames from "classnames";
-
-import "./TreeNode.css";
 
 import TreeGameContext from "../TreeGame/TreeGameContext";
 import canBeChoiced from "../TreeGame/canBeChoiced";
 
+import "./TreeNode.css";
+
 function TreeNode({ data, className }) {
-  if (!data) {
-    return null;
-  }
-  const { left, val, right } = data;
   const {
     state: { firstPlayer, player1Selected, player2Selected },
     // dispatch,
   } = useContext(TreeGameContext);
+  if (!data) {
+    return null;
+  }
+  const { left, val, right } = data;
+
   // console.log(player1Selected, player2Selected);
   const selectedByPlayer1 = player1Selected.has(data);
   const selectedByPlayer2 = player2Selected.has(data);
@@ -36,8 +37,8 @@ function TreeNode({ data, className }) {
   return (
     <div
       className={classNames("tree-node", className, {
-        ["player1-selected"]: selectedByPlayer1,
-        ["player2-selected"]: selectedByPlayer2,
+        "player1-selected": selectedByPlayer1,
+        "player2-selected": selectedByPlayer2,
         disabled: !(selectedByPlayer1 || selectedByPlayer2) && !active,
       })}
     >
