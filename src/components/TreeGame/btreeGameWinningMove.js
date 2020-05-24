@@ -23,11 +23,13 @@ const btreeGameWinningMove = (root, n, x) => {
 
   const parentNum = n - leftNum - rightNum - 1;
 
-  if (leftNum > parentNum && leftNum > rightNum) {
+  const maxNum = Math.max(leftNum, rightNum, parentNum);
+
+  if (maxNum === leftNum) {
     return -1;
   }
 
-  if (rightNum > parentNum && rightNum > leftNum) {
+  if (maxNum === rightNum) {
     return 1;
   }
 
