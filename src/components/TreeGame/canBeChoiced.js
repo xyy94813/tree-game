@@ -10,25 +10,15 @@ const canBeChoiced = (node, firstPlayer, player1Selected, player2Selected) => {
     return false;
   }
 
-  if (firstPlayer) {
-    if (player1Selected.size === 0) {
-      return true;
-    }
+  const curPlayerSelected = firstPlayer ? player1Selected : player2Selected;
 
-    for (let { left, right, parent } of player1Selected) {
-      if (left === node || right === node || parent === node) {
-        return true;
-      }
-    }
-  } else {
-    if (player2Selected.size === 0) {
-      return true;
-    }
+  if (curPlayerSelected.size === 0) {
+    return true;
+  }
 
-    for (let { left, right, parent } of player2Selected) {
-      if (left === node || right === node || parent === node) {
-        return true;
-      }
+  for (let { left, right, parent } of curPlayerSelected) {
+    if (left === node || right === node || parent === node) {
+      return true;
     }
   }
 

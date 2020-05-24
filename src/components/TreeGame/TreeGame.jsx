@@ -38,31 +38,18 @@ const checkPlayerFinish = (
   const isSelected = (node) =>
     player1Selected.has(node) || player2Selected.has(node);
 
-  if (firstPlayer) {
-    if (player1Selected.size === 0) {
+  let curPlayerSelected = firstPlayer ? player1Selected : player2Selected;
+
+  if (curPlayerSelected.size === 0) {
+    return false;
+  }
+  for (let { left, right, parent } of curPlayerSelected) {
+    if (
+      (left && !isSelected(left)) ||
+      (right && !isSelected(right)) ||
+      (parent && !isSelected(parent))
+    ) {
       return false;
-    }
-    for (let { left, right, parent } of player1Selected) {
-      if (
-        (left && !isSelected(left)) ||
-        (right && !isSelected(right)) ||
-        (parent && !isSelected(parent))
-      ) {
-        return false;
-      }
-    }
-  } else {
-    if (player2Selected.size === 0) {
-      return false;
-    }
-    for (let { left, right, parent } of player2Selected) {
-      if (
-        (left && !isSelected(left)) ||
-        (right && !isSelected(right)) ||
-        (parent && !isSelected(parent))
-      ) {
-        return false;
-      }
     }
   }
 
@@ -77,29 +64,17 @@ const checkPlayerFinish = (
  * @param {*} player2Selected
  */
 const fillNode = (firstPlayer, player1Selected, player2Selected) => {
-  if (firstPlayer) {
-    for (let { left, right, parent } of player1Selected) {
-      if (canBeChoiced(left, firstPlayer, player1Selected, player2Selected)) {
-        player1Selected.add(left);
-      }
-      if (canBeChoiced(right, firstPlayer, player1Selected, player2Selected)) {
-        player1Selected.add(right);
-      }
-      if (canBeChoiced(parent, firstPlayer, player1Selected, player2Selected)) {
-        player1Selected.add(parent);
-      }
+  let curPlayerSelected = firstPlayer ? player1Selected : player2Selected;
+
+  for (let { left, right, parent } of curPlayerSelected) {
+    if (canBeChoiced(left, firstPlayer, player1Selected, player2Selected)) {
+      curPlayerSelected.add(left);
     }
-  } else {
-    for (let { left, right, parent } of player2Selected) {
-      if (canBeChoiced(left, firstPlayer, player1Selected, player2Selected)) {
-        player2Selected.add(left);
-      }
-      if (canBeChoiced(right, firstPlayer, player1Selected, player2Selected)) {
-        player2Selected.add(right);
-      }
-      if (canBeChoiced(parent, firstPlayer, player1Selected, player2Selected)) {
-        player2Selected.add(parent);
-      }
+    if (canBeChoiced(right, firstPlayer, player1Selected, player2Selected)) {
+      curPlayerSelected.add(right);
+    }
+    if (canBeChoiced(parent, firstPlayer, player1Selected, player2Selected)) {
+      curPlayerSelected.add(parent);
     }
   }
 };
@@ -270,14 +245,21 @@ function TreeGame(props) {
   const player1SelectedNum = player1Selected.size;
   const player2SelectedNum = player2Selected.size;
 
+  const player1Name = "player1";
+  const player2Name = "player2[AI]";
+
   return (
     <>
       <div>
         <button onClick={handleResetBtnClick}>重新开始</button>
         <br />
-        <span>player1: {player1SelectedNum}，</span>
-        <span>player2[AI]: {player2SelectedNum}。</span>
-        <span>current player: {firstPlayer ? "player1" : "player2"}</span>
+        <span>
+          {player1Name}: {player1SelectedNum}，
+        </span>
+        <span>
+          {player2Name}: {player2SelectedNum}。
+        </span>
+        <span>current player: {firstPlayer ? player1Name : player2Name}</span>
       </div>
       {!!finished && (
         <GameResult
@@ -286,8 +268,8 @@ function TreeGame(props) {
             player1SelectedNum === player2SelectedNum
               ? null
               : player1SelectedNum > player2SelectedNum
-              ? "player1"
-              : "player2"
+              ? player1Name
+              : player2Name
           }
         />
       )}
