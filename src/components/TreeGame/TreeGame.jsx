@@ -18,6 +18,75 @@ const getDefaultState = () => {
   };
 };
 
+const canBeChoiced = (node, playerSelected) => {
+  if (!node || playerSelected.has(node)) {
+    return false;
+  }
+
+  if (playerSelected.size === 0) {
+    return true;
+  }
+
+  for (let { left, right, parent } of playerSelected) {
+    if (left === node || right === node || parent === node) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * 检查玩家是否还能选择
+ * @param {*} isPlayer1
+ * @param {*} player1Selected
+ * @param {*} player2Selected
+ */
+const checkPlayerFinish = (
+  isPlayer1 = true,
+  player1Selected,
+  player2Selected
+) => {
+  const isSelected = (node) =>
+    player1Selected.has(node) || player2Selected.has(node);
+
+  if (isPlayer1) {
+    if (player1Selected.size === 0) {
+      return false;
+    }
+    for (let { left, right, parent } of player1Selected) {
+      if (
+        (left && !isSelected(left)) ||
+        (right && !isSelected(right)) ||
+        (parent && !isSelected(parent))
+      ) {
+        return false;
+      }
+    }
+  } else {
+    if (player2Selected.size === 0) {
+      return false;
+    }
+    for (let { left, right, parent } of player2Selected) {
+      if (
+        (left && !isSelected(left)) ||
+        (right && !isSelected(right)) ||
+        (parent && !isSelected(parent))
+      ) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
+/**
+ * 检查游戏是否结束
+ * 待优化
+ * @param {*} player1Selected
+ * @param {*} player2Selected
+ */
 const checkFinished = (player1Selected, player2Selected) => {
   const isSelected = (node) =>
     player1Selected.has(node) || player2Selected.has(node);
@@ -51,14 +120,32 @@ const reducer = (state, { type, data }) => {
   }
 
   if (type === "SELECT_NODE") {
+    if (
+      !canBeChoiced(
+        data,
+        state.firstPlayer ? state.player1Selected : state.player2Selected
+      )
+    ) {
+      return state;
+    }
     if (state.firstPlayer) {
       !state.player2Selected.has(data) && state.player1Selected.add(data);
     } else {
       !state.player1Selected.has(data) && state.player2Selected.add(data);
     }
+
+    let nextPlayer = !state.firstPlayer;
+    let nextPlayerFinish = checkPlayerFinish(
+      nextPlayer,
+      state.player1Selected,
+      state.player2Selected
+    );
+
+    nextPlayer = nextPlayerFinish ? !nextPlayer : nextPlayer;
+
     return {
       ...state,
-      firstPlayer: !state.firstPlayer,
+      firstPlayer: nextPlayer,
       finished: checkFinished(state.player2Selected, state.player1Selected),
     };
   }
@@ -99,8 +186,8 @@ function TreeGame(props) {
           {player1SelectedNum === player2SelectedNum
             ? "平局"
             : player1SelectedNum > player2SelectedNum
-            ? "player1"
-            : "player2"}
+            ? "player1 winned"
+            : "player2 winned"}
         </div>
       )}
       <div>
