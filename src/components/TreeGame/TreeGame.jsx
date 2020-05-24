@@ -163,11 +163,13 @@ const reducer = (state, { type, data }) => {
       );
 
       if (choice === 0) {
-        state.player2Selected.add(player1Selected.parent);
+        player1Selected.parent &&
+          state.player2Selected.add(player1Selected.parent);
       } else if (choice < 0) {
-        state.player2Selected.add(player1Selected.left);
+        player1Selected.left && state.player2Selected.add(player1Selected.left);
       } else {
-        state.player2Selected.add(player1Selected.right);
+        player1Selected.right &&
+          state.player2Selected.add(player1Selected.right);
       }
     } else {
       for (let { left, right, parent } of state.player2Selected) {
