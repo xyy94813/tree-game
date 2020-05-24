@@ -4,6 +4,7 @@ import classNames from "classnames";
 import "./TreeNode.css";
 
 import TreeGameContext from "../TreeGame/TreeGameContext";
+import canBeChoiced from "../TreeGame/canBeChoiced";
 
 function TreeNode({ data, className }) {
   if (!data) {
@@ -11,18 +12,24 @@ function TreeNode({ data, className }) {
   }
   const { left, val, right } = data;
   const {
-    state: { player1Selected, player2Selected },
+    state: { firstPlayer, player1Selected, player2Selected },
     dispatch,
   } = useContext(TreeGameContext);
   // console.log(player1Selected, player2Selected);
   const selectedByPlayer1 = player1Selected.has(data);
   const selectedByPlayer2 = player2Selected.has(data);
-
+  const active = canBeChoiced(
+    data,
+    firstPlayer,
+    player1Selected,
+    player2Selected
+  );
   const handleNodeClick = useCallback(() => {
     if (selectedByPlayer1 || selectedByPlayer1) {
       return;
     } else {
       dispatch({ type: "SELECT_NODE", data });
+      dispatch({ type: "SELECT_NODE_BY_AI" });
     }
   }, [dispatch, data, selectedByPlayer1, selectedByPlayer1]);
 
@@ -31,9 +38,13 @@ function TreeNode({ data, className }) {
       className={classNames("tree-node", className, {
         ["player1-selected"]: selectedByPlayer1,
         ["player2-selected"]: selectedByPlayer2,
+        disabled: !active,
       })}
     >
-      <span className="tree-node-val" onClick={handleNodeClick}>
+      <span
+        className="tree-node-val"
+        onClick={active ? handleNodeClick : undefined}
+      >
         {val}
       </span>
       {(!!left || !!right) && (

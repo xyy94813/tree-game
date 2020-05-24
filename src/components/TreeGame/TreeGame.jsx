@@ -1,6 +1,6 @@
 import React, { useReducer, useCallback } from "react";
 
-import flow from "../../utils/flow";
+// import flow from "../../utils/flow";
 import randomInteger from "../../utils/randomInteger.js";
 import generateNBinaryTree from "../../utils/generateNBinaryTree";
 
@@ -8,49 +8,36 @@ import TreeNode from "../TreeNode";
 
 import TreeGameContext from "./TreeGameContext";
 
+import canBeChoiced from "./canBeChoiced";
+import btreeGameWinningMove from "./btreeGameWinningMove";
+
 const getDefaultState = () => {
+  const dataSize = randomInteger(1, 20);
   return {
+    dataSize,
+    treeData: generateNBinaryTree(dataSize),
     player1Selected: new Set(),
     player2Selected: new Set(),
-    treeData: flow(randomInteger, generateNBinaryTree)(1, 20),
     firstPlayer: true,
     finished: false,
   };
 };
 
-const canBeChoiced = (node, playerSelected) => {
-  if (!node || playerSelected.has(node)) {
-    return false;
-  }
-
-  if (playerSelected.size === 0) {
-    return true;
-  }
-
-  for (let { left, right, parent } of playerSelected) {
-    if (left === node || right === node || parent === node) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
 /**
  * 检查玩家是否还能选择
- * @param {*} isPlayer1
+ * @param {*} firstPlayer
  * @param {*} player1Selected
  * @param {*} player2Selected
  */
 const checkPlayerFinish = (
-  isPlayer1 = true,
+  firstPlayer = true,
   player1Selected,
   player2Selected
 ) => {
   const isSelected = (node) =>
     player1Selected.has(node) || player2Selected.has(node);
 
-  if (isPlayer1) {
+  if (firstPlayer) {
     if (player1Selected.size === 0) {
       return false;
     }
@@ -87,31 +74,36 @@ const checkPlayerFinish = (
  * @param {*} player1Selected
  * @param {*} player2Selected
  */
-const checkFinished = (player1Selected, player2Selected) => {
-  const isSelected = (node) =>
-    player1Selected.has(node) || player2Selected.has(node);
+// const checkFinished = (player1Selected, player2Selected) => {
+//   const isSelected = (node) =>
+//     player1Selected.has(node) || player2Selected.has(node);
 
-  for (let { left, right, parent } of player1Selected) {
-    if (
-      (left && !isSelected(left)) ||
-      (right && !isSelected(right)) ||
-      (parent && !isSelected(parent))
-    ) {
-      return false;
-    }
-  }
+//   for (let { left, right, parent } of player1Selected) {
+//     if (
+//       (left && !isSelected(left)) ||
+//       (right && !isSelected(right)) ||
+//       (parent && !isSelected(parent))
+//     ) {
+//       return false;
+//     }
+//   }
 
-  for (let { left, right, parent } of player2Selected) {
-    if (
-      (left && !isSelected(left)) ||
-      (right && !isSelected(right)) ||
-      (parent && !isSelected(parent))
-    ) {
-      return false;
-    }
-  }
+//   for (let { left, right, parent } of player2Selected) {
+//     if (
+//       (left && !isSelected(left)) ||
+//       (right && !isSelected(right)) ||
+//       (parent && !isSelected(parent))
+//     ) {
+//       return false;
+//     }
+//   }
 
-  return true;
+//   return true;
+// };
+
+const checkFinished = (player1Selected, player2Selected, max) => {
+  console.log(player1Selected.size + player2Selected.size, max);
+  return player1Selected.size + player2Selected.size >= max;
 };
 
 const reducer = (state, { type, data }) => {
@@ -123,11 +115,14 @@ const reducer = (state, { type, data }) => {
     if (
       !canBeChoiced(
         data,
-        state.firstPlayer ? state.player1Selected : state.player2Selected
+        state.firstPlayer,
+        state.player1Selected,
+        state.player2Selected
       )
     ) {
       return state;
     }
+
     if (state.firstPlayer) {
       !state.player2Selected.has(data) && state.player1Selected.add(data);
     } else {
@@ -146,15 +141,93 @@ const reducer = (state, { type, data }) => {
     return {
       ...state,
       firstPlayer: nextPlayer,
-      finished: checkFinished(state.player2Selected, state.player1Selected),
+      finished: checkFinished(
+        state.player1Selected,
+        state.player2Selected,
+        state.dataSize
+      ),
+    };
+  }
+
+  if (type === "SELECT_NODE_BY_AI") {
+    // AI is player2
+    if (
+      checkPlayerFinish(false, state.player1Selected, state.player2Selected)
+    ) {
+      return state;
+    }
+
+    if (state.player2Selected.size === 0 && state.player1Selected.size === 1) {
+      const player1Selected = state.player1Selected.values().next().value;
+
+      const choice = btreeGameWinningMove(
+        state.treeData,
+        state.dataSize,
+        player1Selected
+      );
+
+      if (choice === 0) {
+        state.player2Selected.add(player1Selected.parent);
+      } else if (choice < 0) {
+        state.player2Selected.add(player1Selected.left);
+      } else {
+        state.player2Selected.add(player1Selected.right);
+      }
+    } else {
+      for (let { left, right, parent } of state.player2Selected) {
+        if (
+          canBeChoiced(
+            left,
+            false,
+            state.player1Selected,
+            state.player2Selected
+          )
+        ) {
+          state.player2Selected.add(left);
+          break;
+        }
+        if (
+          canBeChoiced(
+            right,
+            false,
+            state.player1Selected,
+            state.player2Selected
+          )
+        ) {
+          state.player2Selected.add(right);
+          break;
+        }
+        if (
+          canBeChoiced(
+            parent,
+            false,
+            state.player1Selected,
+            state.player2Selected
+          )
+        ) {
+          state.player2Selected.add(parent);
+          break;
+        }
+      }
+    }
+    return {
+      ...state,
+      firstPlayer: true,
+      finished: checkFinished(
+        state.player1Selected,
+        state.player2Selected,
+        state.dataSize
+      ),
     };
   }
 
   return state;
 };
 
+const init = getDefaultState();
+
 function TreeGame(props) {
-  const [state, dispatch] = useReducer(reducer, getDefaultState());
+  const [state, dispatch] = useReducer(reducer, init);
   const handleResetBtnClick = useCallback(
     (e) => {
       dispatch({ type: "RESTART" });
@@ -175,10 +248,10 @@ function TreeGame(props) {
   return (
     <>
       <div>
-        <button onClick={handleResetBtnClick}>重置</button>
+        <button onClick={handleResetBtnClick}>重新开始</button>
         <br />
         <span>player1: {player1SelectedNum}，</span>
-        <span>player2: {player2SelectedNum}</span>
+        <span>player2[AI]: {player2SelectedNum}</span>
       </div>
       {!!state.finished && (
         <div>

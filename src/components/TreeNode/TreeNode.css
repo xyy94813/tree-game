@@ -26,7 +26,7 @@
 }
 
 .tree-node.player2-selected > .tree-node-val {
-  background: orange;
+  background: blue;
 }
 
 /* 被选中 end */
