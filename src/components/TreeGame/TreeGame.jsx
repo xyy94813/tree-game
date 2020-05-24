@@ -13,7 +13,7 @@ import canBeChoiced from "./canBeChoiced";
 import btreeGameWinningMove from "./btreeGameWinningMove";
 
 const getDefaultState = () => {
-  const dataSize = randomOdd(1, 20);
+  const dataSize = randomOdd(1, 100);
   return {
     dataSize,
     treeData: generateNBinaryTree(dataSize),
