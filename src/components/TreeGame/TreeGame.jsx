@@ -228,15 +228,16 @@ function TreeGame(props) {
       const { target } = e;
       if (target.tagName === "SPAN" && target.className === "tree-node-val") {
         console.log("节点" + target.textContent + "被选中");
-        bfs(treeData, (node) => {
-          if (
+        const data = bfs(
+          treeData,
+          (node) =>
             target.textContent - node.val === 0 &&
             canBeChoiced(node, firstPlayer, player1Selected, player2Selected)
-          ) {
-            dispatch({ type: "SELECT_NODE", data: node });
-            dispatch({ type: "SELECT_NODE_BY_AI" });
-          }
-        });
+        );
+        if (data) {
+          dispatch({ type: "SELECT_NODE", data });
+          dispatch({ type: "SELECT_NODE_BY_AI" });
+        }
       }
     },
     [treeData, firstPlayer, player1Selected, player2Selected]
