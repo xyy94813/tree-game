@@ -8,7 +8,9 @@ import "./TreeNode.css";
 
 function TreeNode({ data, className }) {
   const {
-    state: { firstPlayer, player1Selected, player2Selected },
+    firstPlayer,
+    player1Selected,
+    player2Selected,
     // dispatch,
   } = useContext(TreeGameContext);
   if (!data) {

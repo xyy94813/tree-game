@@ -277,7 +277,7 @@ function TreeGame(props) {
       <div onClick={handlePanelClick}>
         <TreeGameContext.Provider
           value={{
-            state,
+            ...state,
             dispatch,
           }}
         >
