@@ -274,7 +274,12 @@ function TreeGame(props) {
           }
         />
       )}
-      <div onClick={handlePanelClick}>
+      <div
+        onClick={handlePanelClick}
+        style={{
+          width: "max-content", // 临时解决节点因为float “换行”，猜测会引起多次回流。 兼容性：https://www.caniuse.com/#search=max-content
+        }}
+      >
         <TreeGameContext.Provider
           value={{
             ...state,
