@@ -1,57 +1,55 @@
-// import BinaryTreeNode from "../common/BinaryTreeNode";
-import BidirectionalBinaryTreeNode from "../common/BidirectionalBinaryTreeNode";
+import BidirectionalBinaryTreeNode from '../common/BidirectionalBinaryTreeNode';
+import { bfs } from './treeSearch';
+import randomInteger from './randomInteger';
+
 /**
  * 生成 n 个以内的节点且随机结构的二叉树
- * 该实现实现概率不稳定。
- *
- * => 满足题意但是不合理，看进度改进
+ * 参考：
+ * http://www.cs.otago.ac.nz/staffpriv/mike/Papers/RandomGeneration/RandomBinaryTrees.pdf
  */
-const generateNBinaryTree = (n) => {
+const generateNBinaryTree = (n, startVal = 1) => {
   if (n < 1) {
     return null;
   }
 
-  let counter = 0;
-  const root = new BidirectionalBinaryTreeNode(++counter);
+  const root = new BidirectionalBinaryTreeNode(startVal);
 
-  const queue = [root];
-
-  while (queue.length > 0) {
-    const node = queue.shift();
-    if (counter >= n) {
-      continue;
-    }
-
-    const rand = Math.random();
-
-    if (counter < n && rand > 0.25) {
-      node.left = new BidirectionalBinaryTreeNode(++counter, null, null, node);
-      queue.push(node.left);
-    }
-
-    if (counter < n && rand < 0.75) {
-      node.right = new BidirectionalBinaryTreeNode(++counter, null, null, node);
-      queue.push(node.right);
-    }
+  if (n === 1) {
+    return root;
   }
 
-  //   const core = (root) => {
-  //     if (counter >= n || Math.random() < 0.01) {
-  //       return root;
-  //     }
+  const childCount = n - 1;
+  const leftCount = randomInteger(0, childCount);
+  const rightCount = childCount - leftCount;
 
-  //     const rand = Math.random();
+  if (leftCount !== 0) {
+    root.left = generateNBinaryTree(leftCount, startVal + 1);
+    root.left.parent = root; // 双向二叉树便于后续计算
+  }
 
-  //     if (rand > 0.3) {
-  //       root.left = new BinaryTreeNode(++counter);
-  //     }
-
-  //     if (rand < 0.6) {
-  //       root.rightr = new BinaryTreeNode(++counter);
-  //     }
-  //   };
+  if (rightCount !== 0) {
+    root.right = generateNBinaryTree(rightCount, startVal + leftCount + 1);
+    root.right.parent = root; // 双向二叉树便于后续计算
+  }
 
   return root;
 };
 
-export default generateNBinaryTree;
+export default (n) => {
+  /**
+   * 广度优先遍历将树的值改为以下格式
+   *
+   *    1
+   *  2   3
+   * 4 5 6 7
+   *
+   */
+  const root = generateNBinaryTree(n);
+  let curVal = 1;
+  bfs(root, (node) => {
+    node.val = curVal;
+    curVal++;
+  });
+
+  return root;
+};

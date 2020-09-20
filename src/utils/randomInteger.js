@@ -1,6 +1,6 @@
 /**
  * 随机生成一个整数 n
- * min <= n < max
+ * min <= n <= max
  * @param {int} min
  * @param {int} max
  */
